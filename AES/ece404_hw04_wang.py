@@ -28,7 +28,8 @@ def getRoundKey():
     # Generate the roundkeys in hex form
     round_keys = [None for i in range(11)]
     for i in range(11):
-        round_keys[i] = (key_words[i * 4] + key_words[i * 4 + 1] + key_words[i * 4 + 2] + key_words[i * 4 + 3])
+        round_keys[i] = (key_words[i * 4] + key_words[i * 4 + 1] +
+                         key_words[i * 4 + 2] + key_words[i * 4 + 3])
     return round_keys
 
 
@@ -56,9 +57,11 @@ def gee(keyword, round_constant):
     rotated_word << 8
     newword = BitVector(size=0)
     for i in range(4):
-        newword += BitVector(intVal=subBytesTable[rotated_word[8 * i:8 * i + 8].intValue()], size=8)
+        newword += BitVector(
+            intVal=subBytesTable[rotated_word[8 * i:8 * i + 8].intValue()], size=8)
     newword[:8] ^= round_constant
-    round_constant = round_constant.gf_multiply_modular(BitVector(intVal=0x02), AES_modulus, 8)
+    round_constant = round_constant.gf_multiply_modular(
+        BitVector(intVal=0x02), AES_modulus, 8)
     return newword, round_constant
 
 
@@ -70,7 +73,8 @@ def gen_tables():
     d = BitVector(bitstring='00000101')
     for i in range(0, 256):
         # For the encryption SBox
-        a = BitVector(intVal=i, size=8).gf_MI(AES_modulus, 8) if i != 0 else BitVector(intVal=0)
+        a = BitVector(intVal=i, size=8).gf_MI(
+            AES_modulus, 8) if i != 0 else BitVector(intVal=0)
         # For bit scrambling for the encryption SBox entries:
         a1, a2, a3, a4 = [a.deep_copy() for x in range(4)]
         a ^= (a1 >> 4) ^ (a2 >> 5) ^ (a3 >> 6) ^ (a4 >> 7) ^ c
@@ -91,7 +95,8 @@ def get_key_from_user():
     with open('key.txt') as myFile:
         key = myFile.read()
     # If not 16 bytes then pad from left, if exceed then only take first 16 bytes
-    key += '0' * (keysize // 8 - len(key)) if len(key) < keysize // 8 else key[:keysize // 8]
+    key += '0' * (keysize // 8 - len(key)
+                  ) if len(key) < keysize // 8 else key[:keysize // 8]
     key_bv = BitVector(textstring=key)
     return key_bv
 
@@ -106,7 +111,8 @@ def byte_substitution(state_array):
     # Process the byte substitution
     for i in range(4):
         for j in range(4):
-            bv = BitVector(size=8, intVal=subBytesTable[state_array[i][j].intValue()])
+            bv = BitVector(
+                size=8, intVal=subBytesTable[state_array[i][j].intValue()])
             state_array[i][j] = bv
     return state_array
 
@@ -115,7 +121,8 @@ def inv_byte_substitution(state_array):
     # Process the inverse byte substitution
     for i in range(4):
         for j in range(4):
-            bv = BitVector(size=8, intVal=invSubBytesTable[state_array[i][j].intValue()])
+            bv = BitVector(
+                size=8, intVal=invSubBytesTable[state_array[i][j].intValue()])
             state_array[i][j] = bv
     return state_array
 
@@ -136,10 +143,14 @@ def inv_mix_columns(state_array):
     N = BitVector(hexstring='09')
 
     for j in range(4):
-        first_row = (E.gf_multiply_modular(state_array[0][j], AES_modulus, 8)) ^ (B.gf_multiply_modular(state_array[1][j], AES_modulus, 8)) ^ (D.gf_multiply_modular(state_array[2][j], AES_modulus, 8)) ^ (N.gf_multiply_modular(state_array[3][j], AES_modulus, 8))
-        second_row = (N.gf_multiply_modular(state_array[0][j], AES_modulus, 8)) ^ (E.gf_multiply_modular(state_array[1][j], AES_modulus, 8)) ^ (B.gf_multiply_modular(state_array[2][j], AES_modulus, 8)) ^ (D.gf_multiply_modular(state_array[3][j], AES_modulus, 8))
-        third_row = (D.gf_multiply_modular(state_array[0][j], AES_modulus, 8)) ^ (N.gf_multiply_modular(state_array[1][j], AES_modulus, 8)) ^ (E.gf_multiply_modular(state_array[2][j], AES_modulus, 8)) ^ (B.gf_multiply_modular(state_array[3][j], AES_modulus, 8))
-        fourth_row = (B.gf_multiply_modular(state_array[0][j], AES_modulus, 8)) ^ (D.gf_multiply_modular(state_array[1][j], AES_modulus, 8)) ^ (N.gf_multiply_modular(state_array[2][j], AES_modulus, 8)) ^ (E.gf_multiply_modular(state_array[3][j], AES_modulus, 8))
+        first_row = (E.gf_multiply_modular(state_array[0][j], AES_modulus, 8)) ^ (B.gf_multiply_modular(state_array[1][j], AES_modulus, 8)) ^ (
+            D.gf_multiply_modular(state_array[2][j], AES_modulus, 8)) ^ (N.gf_multiply_modular(state_array[3][j], AES_modulus, 8))
+        second_row = (N.gf_multiply_modular(state_array[0][j], AES_modulus, 8)) ^ (E.gf_multiply_modular(state_array[1][j], AES_modulus, 8)) ^ (
+            B.gf_multiply_modular(state_array[2][j], AES_modulus, 8)) ^ (D.gf_multiply_modular(state_array[3][j], AES_modulus, 8))
+        third_row = (D.gf_multiply_modular(state_array[0][j], AES_modulus, 8)) ^ (N.gf_multiply_modular(state_array[1][j], AES_modulus, 8)) ^ (
+            E.gf_multiply_modular(state_array[2][j], AES_modulus, 8)) ^ (B.gf_multiply_modular(state_array[3][j], AES_modulus, 8))
+        fourth_row = (B.gf_multiply_modular(state_array[0][j], AES_modulus, 8)) ^ (D.gf_multiply_modular(state_array[1][j], AES_modulus, 8)) ^ (
+            N.gf_multiply_modular(state_array[2][j], AES_modulus, 8)) ^ (E.gf_multiply_modular(state_array[3][j], AES_modulus, 8))
 
         state_array[0][j] = first_row
         state_array[1][j] = second_row
@@ -162,10 +173,14 @@ def mix_columns(state_array):
     two_times = BitVector(hexstring='02')
     three_times = BitVector(hexstring='03')
     for j in range(4):
-        first_row = (two_times.gf_multiply_modular(state_array[0][j], AES_modulus, 8)) ^ (three_times.gf_multiply_modular(state_array[1][j], AES_modulus, 8)) ^ state_array[2][j] ^ state_array[3][j]
-        second_row = state_array[0][j] ^ (two_times.gf_multiply_modular(state_array[1][j], AES_modulus, 8)) ^ (three_times.gf_multiply_modular(state_array[2][j], AES_modulus, 8)) ^ state_array[3][j]
-        third_row = state_array[0][j] ^ state_array[1][j] ^ (two_times.gf_multiply_modular(state_array[2][j], AES_modulus, 8)) ^ (three_times.gf_multiply_modular(state_array[3][j], AES_modulus, 8))
-        fourth_row = (three_times.gf_multiply_modular(state_array[0][j], AES_modulus, 8)) ^ state_array[1][j] ^ state_array[2][j] ^ (two_times.gf_multiply_modular(state_array[3][j], AES_modulus, 8))
+        first_row = (two_times.gf_multiply_modular(state_array[0][j], AES_modulus, 8)) ^ (
+            three_times.gf_multiply_modular(state_array[1][j], AES_modulus, 8)) ^ state_array[2][j] ^ state_array[3][j]
+        second_row = state_array[0][j] ^ (two_times.gf_multiply_modular(state_array[1][j], AES_modulus, 8)) ^ (
+            three_times.gf_multiply_modular(state_array[2][j], AES_modulus, 8)) ^ state_array[3][j]
+        third_row = state_array[0][j] ^ state_array[1][j] ^ (two_times.gf_multiply_modular(
+            state_array[2][j], AES_modulus, 8)) ^ (three_times.gf_multiply_modular(state_array[3][j], AES_modulus, 8))
+        fourth_row = (three_times.gf_multiply_modular(state_array[0][j], AES_modulus, 8)) ^ state_array[1][j] ^ state_array[2][j] ^ (
+            two_times.gf_multiply_modular(state_array[3][j], AES_modulus, 8))
 
         state_array[0][j] = first_row
         state_array[1][j] = second_row
@@ -203,7 +218,8 @@ def AES_Encryption(plaintext, ciphertext):
         # Fill in the state array
         for i in range(4):
             for j in range(4):
-                state_array[j][i] = bv_read[32 * i + 8 * j: 32 * i + 8 * (j + 1)]
+                state_array[j][i] = bv_read[32 *
+                                            i + 8 * j: 32 * i + 8 * (j + 1)]
         # Process the ten rounds of encryption
         for i in range(1, 11):
             # Byte substitution
@@ -219,7 +235,8 @@ def AES_Encryption(plaintext, ciphertext):
             # Convert back to 4*4 state_array
             for r in range(4):
                 for c in range(4):
-                    state_array[c][r] = state_bv[32 * r + 8 * c: 32 * r + 8 * (c + 1)]
+                    state_array[c][r] = state_bv[32 *
+                                                 r + 8 * c: 32 * r + 8 * (c + 1)]
         # Convert the final 4*4 state_array to 1-D array
         final_bv = convert_state_bv(state_array)
         # Add to the final string
@@ -249,7 +266,8 @@ def AES_Decryption(ciphertext, decrypted):
         # fill in the state_array
         for i in range(4):
             for j in range(4):
-                state_array[j][i] = bv_read[32 * i + 8 * j: 32 * i + 8 * (j + 1)]
+                state_array[j][i] = bv_read[32 *
+                                            i + 8 * j: 32 * i + 8 * (j + 1)]
         # Process the ten round of decryption
         for i in range(1, 11):
             # Inverse row shifting
@@ -262,7 +280,8 @@ def AES_Decryption(ciphertext, decrypted):
             # Convert back to 4*4 state_array
             for r in range(4):
                 for c in range(4):
-                    state_array[c][r] = state_bv[32 * r + 8 * c: 32 * r + 8 * (c + 1)]
+                    state_array[c][r] = state_bv[32 *
+                                                 r + 8 * c: 32 * r + 8 * (c + 1)]
             # If not the last round, then inverse column mixing
             if i != 10:
                 state_array = inv_mix_columns(state_array)
