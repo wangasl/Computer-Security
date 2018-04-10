@@ -301,7 +301,7 @@ def main():
     subBytesTable, invSubBytesTable = gen_tables()
     # Perform encryption
     print('Perform encryption')
-    AES_Encryption('message.txt', 'encrypted.txt')
+    # AES_Encryption('message.txt', 'encrypted.txt')
     # Perform decryption
     print('Perform decryption')
     AES_Decryption('encrypted.txt', 'decrypted.txt')
