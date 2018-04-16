@@ -1,0 +1,60 @@
+SHELL=/bin/sh
+PATH=/usr/local/lib/mh:$PATH
+MAILDIR=$HOME/Mail
+LOGFILE=$HOME/Mail/logfile
+SENDMAIL=/usr/sbin/sendmail
+#VERBOSE=1
+VERBOSE=0
+EOL="
+"
+LOG="$EOL$EOL$EOL"
+LOG="New message log:$EOL"
+LOG=`perl GET_MESSAGE_INDEX`
+LOG="$EOL"
+
+# Shulin Wang
+# HW 12
+# ECE 404
+# 0028154214
+
+
+## Recipe_1:
+## This recipe will be execute if the incoimng mail contains multiple entries
+## in the "From:" header
+##
+:0 :
+* ^From.*,
+spam
+
+
+## Recipe_2:
+## This recipe will be execute if the incoming mail contains certain keywords
+#
+:0 :
+* ^Subject.*(medications|diploma|career|Diploma|measures|mock|watches|Degree|book|Hostway)
+spam
+
+
+
+## Recipe_3:
+## This recipt will be execute if the incoming mail contains any money values
+#
+:0 B :
+* (EUR|$[0-9]*\.?[0-9]*)
+spam
+
+## Recipe_4
+## This recpit will be execute if the incoming mail is a spam message
+#
+:0 HB :
+* ^Content-Type: text/plain
+* ^Content-Type: multipart/alternative
+spam 
+
+## Recipe_5:
+## The rest emails going to the final folder
+#
+: 0:
+/var/mail/ece404f5
+
+
